@@ -1,0 +1,8 @@
+{
+    "UState":[
+        "Enable",
+        "Disable",
+        "NoValidate",
+        "Banned"
+    ]
+}

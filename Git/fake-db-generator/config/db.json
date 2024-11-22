@@ -1,0 +1,8 @@
+{
+    "User":{
+        "Name": "String",
+        "Email": "String",
+        "Password": "String",
+        "ID": "GUID"
+    }
+}
