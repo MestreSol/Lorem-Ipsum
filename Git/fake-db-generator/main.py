@@ -10,17 +10,18 @@ def load_config(config_path):
     with open(config_path, 'r') as file:
         return json.load(file)
 
+def load_json_file(file_path):
+    with open(file_path, 'r') as file:
+        return json.load(file)
+
 def generate_inserts(config, num_inserts):
     inserts = []
-    # Load all JSON files once
-    with open('assets/names_list.json', 'r') as file:
-        names = json.load(file)["Names"]
+    names = load_json_file('assets/names_list.json')["Names"]
+    emails = load_json_file('assets/emails_list.json')["Emails"]
+    usernames = load_json_file('assets/usernames_list.json')["UserNames"]
+
     print(f"Loaded {len(names)} names")
-    with open('assets/emails_list.json', 'r') as file:
-        emails = json.load(file)["Emails"]
     print(f"Loaded {len(emails)} emails")
-    with open('assets/usernames_list.json', 'r') as file:
-        usernames = json.load(file)["UserNames"]
     print(f"Loaded {len(usernames)} usernames")
 
     for _ in range(num_inserts):
@@ -30,16 +31,9 @@ def generate_inserts(config, num_inserts):
             for key, value in columns.items():
                 insert += f"{key}, "
                 if value == 'GUID':
-                    values += f"'{uuid.uuid4()}', "  # Using uuid4 to generate a GUID
+                    values += f"'{uuid.uuid4()}', "
                 elif value == 'String':
-                    if key == 'Name':
-                        values += f"'{random.choice(names)}', "
-                    elif key == 'Email':
-                        values += f"'{random.choice(emails)}', "
-                    elif key == 'Password':
-                        values += f"'{random.choice(usernames)}', "
-                    else:
-                        values += f"'{random.choice(usernames)}', "  # Default for other strings
+                    values += f"'{random.choice(names if key == 'Name' else emails if key == 'Email' else usernames)}', "
                 elif value == 'Int':
                     values += f"{random.randint(0, 1000)}, "
                 elif value == 'Float':
@@ -50,15 +44,19 @@ def generate_inserts(config, num_inserts):
             inserts.append(insert)
     return inserts
 
-def connect_to_db():
+def connect_to_db(inserts):
     def submit():
-        conn = sqlite3.connect(entry.get())
-        cursor = conn.cursor()
-        for insert in inserts:
-            cursor.execute(insert)
-        conn.commit()
-        conn.close()
-        root.destroy()
+        try:
+            conn = sqlite3.connect(entry.get())
+            cursor = conn.cursor()
+            for insert in inserts:
+                cursor.execute(insert)
+            conn.commit()
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+        finally:
+            conn.close()
+            root.destroy()
 
     root = Tk()
     root.title("Database Connection")
@@ -71,18 +69,12 @@ def connect_to_db():
 if __name__ == "__main__":
     config_path = os.path.join('config', 'db.json')
     config = load_config(config_path)
-    if '--qtd' in sys.argv:
-        num_inserts = int(sys.argv[sys.argv.index('--qtd') + 1])
-    else:
-        num_inserts = 10  # Default value if not provided
+    num_inserts = int(sys.argv[sys.argv.index('--qtd') + 1]) if '--qtd' in sys.argv else 10
     inserts = generate_inserts(config, num_inserts)
 
     if len(sys.argv) > 1 and sys.argv[1] == '--connect':
-        connect_to_db()
+        connect_to_db(inserts)
     else:
-        for insert in inserts:
-            print(insert)
-        # Output the inserts to a file
         with open('output.sql', 'w') as file:
             for insert in inserts:
                 file.write(insert + '\n')
