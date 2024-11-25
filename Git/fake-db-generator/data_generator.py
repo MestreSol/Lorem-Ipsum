@@ -26,4 +26,5 @@ def generate_inserts(config, num_inserts):
                     values += f"{random.choice([0, 1])}, "
             insert = insert[:-2] + ") " + values[:-2] + ");"
             inserts.append(insert)
+            print(insert)
     return inserts

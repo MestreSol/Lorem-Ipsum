@@ -11,13 +11,18 @@ def generate_and_insert_continuously(config, delay):
     print(f"Generate tables: {config.keys()}")
     db_path = load_db_path()
 
+    connection_config_path = os.path.join('config', 'connection.json')
+    connection_config = load_config(connection_config_path)
+    connection = connect(
+        host=connection_config['host'],
+        database=connection_config['database'],
+        user=connection_config['user'],
+        password=connection_config.get('password')
+    )
     try:
-        connection = connect(
-            host='localhost',
-            database='test',
-            user='root'
-        )
+        print("Trying to connect to MySQL...")
         if connection.is_connected():
+            print("Connected to MySQL")
             create_tables(config, connection)
             cursor = connection.cursor()
             while True:

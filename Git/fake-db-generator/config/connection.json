@@ -1,3 +1,6 @@
 {
-    "db_path": "Server=localhost;Database=test;Uid=root;"
+    "host": "localhost",
+    "user": "root",
+    "password": "",
+    "database": "test"
 }
