@@ -1,8 +1,20 @@
 {
     "User":{
+        "ID": "GUID",
         "Name": "String",
         "Email": "String",
-        "Password": "String",
-        "ID": "GUID"
+        "Password": "String"
+    },
+
+    "Endereco":{
+        "ID": "GUID",
+        "User_ID": "GUID",
+        "Rua": "String",
+        "Numero": "String",
+        "Complemento": "String",
+        "Bairro": "String",
+        "Cidade": "String",
+        "Estado": "String",
+        "CEP": "String"
     }
 }
